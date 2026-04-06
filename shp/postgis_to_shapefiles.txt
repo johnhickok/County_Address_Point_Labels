@@ -1,0 +1,13 @@
+::Run this in the OSGEO4W shell
+
+:: shapefile used for parcels vector tiles
+ogr2ogr -f "ESRI Shapefile" parcels_geom.shp PG:"host=localhost user=postgres dbname=laco_backup password=postgres" "parcels_geom" -progress
+
+:: shapefile for address labels vector tiles
+ogr2ogr -f "ESRI Shapefile" address_labels.shp PG:"host=localhost user=postgres dbname=laco_backup password=postgres" "address_labels" -progress
+
+:: extract CSV of address labels for sharing
+ogr2ogr -f "CSV" address_labels.csv PG:"host=localhost user=postgres dbname=laco_backup password=postgres" -sql "select pt_label, fulladdress, src, round(st_x(st_transform(geom,4326))::numeric,6)::text as lon, round(st_y(st_transform(geom,4326))::numeric,6)::text as lat from address_labels" -progress
+
+:: ONLY IF REQUESTED - extract parcels with no CAMS for sharing
+ogr2ogr -f "GPKG" -s_srs EPSG:2229 -t_srs EPSG:3857 pcls_no_cams.gpkg PG:"host=localhost user=postgres dbname=laco_backup password=postgres" "pcls_no_cams" -progress

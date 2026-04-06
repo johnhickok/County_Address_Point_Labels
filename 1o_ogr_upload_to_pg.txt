@@ -1,0 +1,39 @@
+:: This file contains ogr2ogr and ogrinfo expressions top copy/paste
+:: into the OSGEO4W Shell
+
+::docs: 
+::https://gdal.org/programs/ogr2ogr.html
+::https://www.bostongis.com/PrinterFriendly.aspx?content_name=ogr_cheatsheet
+
+:: While arcpy scripts are downloading, copy and paste the following 
+:: to check progress:
+
+:: CAMS Points:
+ogrinfo downloaded_cams_points.gdb -sql "select count(*) from cams_points"
+
+:: Parcels:
+ogrinfo downloaded_parcels.gdb -sql "select count(*) from parcels"
+
+
+:: Copy and paste the ogr2ogr expressions into the OSGEO4W Shell
+:: to upload FGD layers into PostgreSQL
+
+:: upload city boundaries
+ogr2ogr -lco GEOMETRY_NAME=geom -f "PostgreSQL" PG:"host=localhost port=5432 dbname=laco_backup user=postgres password=postgres" -s_srs EPSG:2229 -t_srs EPSG:2229 downloaded_city_boundaries.gdb -sql "SELECT * FROM city_boundaries" -overwrite -progress --config PG_USE_COPY YES -nlt MULTIPOLYGON
+
+:: upload countywide statistical areas
+ogr2ogr -lco GEOMETRY_NAME=geom -f "PostgreSQL" PG:"host=localhost port=5432 dbname=laco_backup user=postgres password=postgres" -s_srs EPSG:2229 -t_srs EPSG:2229 downloaded_csa.gdb -sql "SELECT * FROM csa" -overwrite -progress --config PG_USE_COPY YES -nlt MULTIPOLYGON
+
+:: upload cams address lines
+ogr2ogr -lco GEOMETRY_NAME=geom -f "PostgreSQL" PG:"host=localhost port=5432 dbname=laco_backup user=postgres password=postgres" -s_srs EPSG:2229 -t_srs EPSG:2229 downloaded_cams_lines.gdb -sql "SELECT * FROM cams_lines" -overwrite -progress --config PG_USE_COPY YES -nlt MULTILINESTRING
+
+:: upload cams address points
+ogr2ogr -lco GEOMETRY_NAME=geom -f "PostgreSQL" PG:"host=localhost port=5432 dbname=laco_backup user=postgres password=postgres" -s_srs EPSG:2229 -t_srs EPSG:2229 downloaded_cams_points.gdb -sql "SELECT * FROM cams_points" -overwrite -progress --config PG_USE_COPY YES
+
+:: upload parcels
+ogr2ogr -lco GEOMETRY_NAME=geom -f "PostgreSQL" PG:"host=localhost port=5432 dbname=laco_backup user=postgres password=postgres" -s_srs EPSG:2229 -t_srs EPSG:2229 downloaded_parcels.gdb -sql "SELECT * FROM parcels" -overwrite -progress --config PG_USE_COPY YES -nlt MULTIPOLYGON
+
+
+:: You might get the warning below when uploading parcels. Ignore it.
+
+::Warning 1: organizePolygons() received a polygon with more than 100 parts. The processing may be really slow.  You can skip the processing by setting METHOD=SKIP, or only make it analyze counter-clock wise parts by setting METHOD=ONLY_CCW if you can assume that the outline of holes is counter-clock wise defined
