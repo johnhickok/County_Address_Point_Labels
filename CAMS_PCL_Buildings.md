@@ -1,5 +1,5 @@
 <h2>Regroup CAMS Points</h2>
-PostGIS can be used to regroup multiple address locations to LARIAC Building centroids. The code samples can be helpful, but the user needs to have some background in PostGIS, Python, and desktop GIS software like ArcGIS Pro or QGIS.
+PostGIS can be used to regroup multiple address locations to LARIAC Building and/or Assor Parcel centroids. The code samples can be helpful, but the user needs to have some background in PostGIS, Python, and desktop GIS software like ArcGIS Pro or QGIS.
 <br>
 <br>
 First, create a PostgreSQL database and enable PostGIS.
