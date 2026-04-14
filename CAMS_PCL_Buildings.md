@@ -27,9 +27,9 @@ Populate this table and create a spatial index.
 INSERT INTO PCLS_GEOM (GEOM) SELECT DISTINCT GEOM FROM PARCELS;
 CREATE INDEX IDX_PCLS_GEOM ON PCLS_GEOM USING GIST(GEOM);
 </pre>
-
 Create an interim table for buildings with pcls_geom ids obtained from spatially joining building centroids. Note we are only using buildings where code = 'Building' and not 'Courtyard' or 'Free Standing Solar Structure'.
 <br>
+<pre>
 CREATE TABLE BLDG_PCL AS
 SELECT
 PCLS_GEOM.ID AS PCL_ID,
@@ -38,10 +38,11 @@ BLDG.GEOM
 FROM PCLS_GEOM
 JOIN (SELECT GEOM FROM BUILDINGS WHERE CODE LIKE 'Building') BLDG
 ON ST_INTERSECTS(PCLS_GEOM.GEOM, ST_CENTROID(BLDG.GEOM))
+</pre>
 
-<br>
 Create an interim table with the largest building on each parcel.
 <br>
+<pre>
 CREATE TABLE BLDG_LARGE AS
 SELECT
 BLDG_PCL.PCL_ID,
@@ -54,8 +55,8 @@ FROM BLDG_PCL
 GROUP BY PCL_ID) AS B
 LEFT JOIN BLDG_PCL
 ON B.PCL_ID::TEXT || B.BLDG_AREA::TEXT = BLDG_PCL.PCL_ID::TEXT || BLDG_PCL.BLDG_AREA::TEXT
+</pre>
 
-<br>
 Create and populate centroids of the largest buildings.
 <br>
 CREATE TABLE PCL_PTS (
