@@ -59,11 +59,12 @@ ON B.PCL_ID::TEXT || B.BLDG_AREA::TEXT = BLDG_PCL.PCL_ID::TEXT || BLDG_PCL.BLDG_
 
 Create and populate centroids of the largest buildings.
 <br>
+<pre>
 CREATE TABLE PCL_PTS (
 ID SERIAL PRIMARY KEY,
 GEOM GEOMETRY(Point,2229)
 ;
-<br>
+
 INSERT INTO PCL_PTS 
 (GEOM)
 SELECT
@@ -71,7 +72,8 @@ ST_CENTROID(GEOM)
 FROM BLDG_LARGE;
 
 CREATE INDEX IDX_PCL_PTS ON PCL_PTS USING GIST(GEOM);
-<br>
+</pre>
+
 Create an interim table of parcels with no building points.
 <br>
 CREATE TABLE PCL_NO_BLDG AS
