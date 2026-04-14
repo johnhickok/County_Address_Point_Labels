@@ -40,8 +40,8 @@ JOIN (SELECT GEOM FROM BUILDINGS WHERE CODE LIKE 'Building') BLDG
 ON ST_INTERSECTS(PCLS_GEOM.GEOM, ST_CENTROID(BLDG.GEOM))
 </pre>
 
-Create an interim table with the largest building on each parcel.
-<br>
+Create an interim table with the largest building on each parcel, then create a spatial index.
+
 <pre>
 CREATE TABLE BLDG_LARGE AS
 SELECT
@@ -62,8 +62,7 @@ Create and populate centroids of the largest buildings.
 <pre>
 CREATE TABLE PCL_PTS (
 ID SERIAL PRIMARY KEY,
-GEOM GEOMETRY(Point,2229)
-;
+GEOM GEOMETRY(Point,2229);
 
 INSERT INTO PCL_PTS 
 (GEOM)
@@ -75,7 +74,7 @@ CREATE INDEX IDX_PCL_PTS ON PCL_PTS USING GIST(GEOM);
 </pre>
 
 Create an interim table of parcels with no building points.
-<br>
+<pre>
 CREATE TABLE PCL_NO_BLDG AS
 SELECT a.*
 FROM pcls_geom a
@@ -84,28 +83,31 @@ WHERE NOT EXISTS (
     FROM pcl_pts b
     WHERE ST_Intersects(a.geom, b.geom)
 );
-<br>
+</pre>
+
 Insert points on surface of parcels with no buildings into PCL_PTS.
 <br>
+<pre>
 INSERT INTO PCL_PTS 
 (GEOM)
 SELECT
 ST_POINTONSURFACE(GEOM)
 FROM PCL_NO_BLDG;
-<br>
+</pre>
 At this stage, each parcel should have a single point. To verify, run some simple SQL tests below to see if counts are all the same. You can run more elaborate SQL tests or use desktop geoprocessing tool to find and fix excess or missing points.
 <br>
+<pre>
 SELECT COUNT(*) FROM PCL_PTS;
 SELECT DISTINCT COUNT(*) FROM PCL_PTS;
 
 SELECT COUNT(*) FROM PCLS_GEOM;
 SELECT DISTINCT COUNT(*) FROM PCLS_GEOM;
-<br>
+</pre>
 NOTE: These steps may be a great help in large suburban areas where the main residential building represents a good rooftop location. Parcels with multiple large buildings may need to be edited one at a time as time permits.
 <br>
 <br>
 Finally, load CAMS Points, grouped onto these new geometries.
-<br>
+<pre>
 CREATE TABLE CAMS_POINTS_REV AS
 SELECT
 CAMS_POINTS.OGC_FID,
@@ -164,6 +166,7 @@ PCL_PTS.GEOM
 FROM PCLS_GEOM
 JOIN CAMS_POINTS
 ON ST_INTERSECTS(PCLS_GEOM.GEOM, CAMS_POINTS.GEOM)
+</pre>
 JOIN PCL_PTS
 ON ST_INTERSECTS(PCLS_GEOM.GEOM, PCL_PTS.GEOM)
 ;
